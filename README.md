@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # LiveRoomDemo(服务端)
 > 这是一个用java实现的一个直播间Demo,主要实现了以下功能
 * 拉取服务器上的直播流(移动端拉取hls流、电脑端拉取rtmp流)
@@ -29,3 +30,6 @@
 > 弹幕效果
 ![弹幕](https://github.com/jack-hoo/LiveRoomDemo_Client/blob/master/static/screenshot/danmu.png)
 
+=======
+<h3>服务端</h3>
+>>>>>>> d3adec2cf57bf6980e26acd8b9bb670679eea574
