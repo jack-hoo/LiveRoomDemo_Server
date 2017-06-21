@@ -30,6 +30,6 @@
 > 弹幕效果
 ![弹幕](https://github.com/jack-hoo/LiveRoomDemo_Client/blob/master/static/screenshot/danmu.png)
 
-=======
-<h3>服务端</h3>
+## 部署说明
 
+修改相应的数据库、消息中间件账号信息
