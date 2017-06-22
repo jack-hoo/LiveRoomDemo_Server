@@ -25,7 +25,8 @@
 - 移动客户端项目在[这里](https://github.com/jack-hoo/LiveRoomDemo_Client)
     
 ## 运行截图   
-> 全局效果
+![户外直播](https://github.com/jack-hoo/LiveRoomDemo_Client/blob/master/static/screenshot/mzdemo.jpg)
+
 ![全局](https://github.com/jack-hoo/LiveRoomDemo_Client/blob/master/static/screenshot/screenshot1.png)
 > 弹幕效果
 ![弹幕](https://github.com/jack-hoo/LiveRoomDemo_Client/blob/master/static/screenshot/danmu.png)
