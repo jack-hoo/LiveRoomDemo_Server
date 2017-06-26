@@ -5,7 +5,7 @@
 * 基于websocket的直播聊天室
 * 直播间弹幕
 * 直播间的实时数据统计    
-* [演示地址(电脑端与移动端效果不同哦)](http://www.veton.cc:8080/LiveDemo/live_room)
+* [演示地址(电脑端与移动端效果不同哦)](http://139.199.82.213:8080/LiveDemo/live_room)
 * [博客地址](https://segmentfault.com/a/1190000009892006)
 
 ## 技术栈    
