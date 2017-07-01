@@ -26,24 +26,11 @@ public class StatDao {
     }
     public void pushGuestHistory(Guest guest){
         //最多存储指定个数的访客
-        if (redisTemplate.opsForList().size("Guest") == 5l){
+        if (redisTemplate.opsForList().size("Guest") == 2000l){
             redisTemplate.opsForList().rightPop("Guest");
         }
         redisTemplate.opsForList().leftPush("Guest",guest);
-        /*Long guestsNow = redisTemplate.opsForZSet().zCard("Guest");
-        if (guestsNow == 5l){
-            HashSet<String> keys = (HashSet<String>) redisTemplate.opsForZSet().range("Guest",0 ,-1);
-            String lastGuest = "";
-            for(String key :keys){
-
-            }
-            redisTemplate.opsForZSet().remove("Guest",keys[0]);
-        }
-        redisTemplate.opsForZSet().add("Guest",userEntity,time);*/
     }
-    /*public void popGuestHistory(Guest guest){
-        redisTemplate.opsForList().remove("Guest",0,guest);
-    }*/
     public List getGuestHistory(){
         return redisTemplate.opsForList().range("Guest",0,-1);
     }

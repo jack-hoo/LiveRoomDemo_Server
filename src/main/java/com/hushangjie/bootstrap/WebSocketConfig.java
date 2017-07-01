@@ -20,7 +20,7 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 import org.springframework.web.socket.sockjs.frame.SockJsMessageCodec;
 
 /**
- * Created by Administrator on 2017/6/12.
+ * Created by hushangjie on 2017/6/12.
  */
 @Configuration
 @EnableWebSocketMessageBroker
