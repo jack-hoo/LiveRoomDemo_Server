@@ -53,7 +53,6 @@ public class DemoController {
         //System.out.println("ip="+ip+"name="+user.getRandomName());
         session.setAttribute("user",user);
         //判断用户是手机还是电脑端
-        Enumeration enumeration = request.getHeaderNames();
         if (UserAgentUtil.JudgeIsMoblie(request)){
             //移动端访问
             return "live_m";

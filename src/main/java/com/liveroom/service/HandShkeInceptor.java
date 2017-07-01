@@ -34,21 +34,16 @@ public class HandShkeInceptor extends HttpSessionHandshakeInterceptor {
            //request.getSession(false)：若存在会话则返回该会话，否则返回NULL
            //HttpSession session = servletRequest.getServletRequest().getSession(false);
             HttpSession session = servletRequest.getServletRequest().getSession();
-            System.out.println(session);
-            /*UserEntity user = (UserEntity) session.getAttribute("user");
-            System.out.println("获取用户信息异常"+user);
+            UserEntity user = (UserEntity) session.getAttribute("user");
             if (user != null) {
                 //这里只使用简单的session来存储用户，如果使用了springsecurity可以直接使用principal
-                //attributes.put("username",user.getRandomName());
-                System.out.println("获取用户信息正常"+user.getIp());
-                System.out.println(user.getRandomName());*/
                 return super.beforeHandshake(request, response, wsHandler, attributes);
-            /*}else {
+            }else {
                 System.out.println("用户未登录，握手失败！");
                 return false;
-            }*/
+            }
         }
-        return true;
+        return false;
     }
 
     @Override

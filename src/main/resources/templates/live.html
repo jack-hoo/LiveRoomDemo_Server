@@ -190,7 +190,7 @@
                         <h4>关于我</h4>
                         <ul class="list-unstyled">
                             <li>
-                                <a target="_blank" href="/LiveDemo/resume">个人简介</a>
+                                <a target="_blank" href="http://github.com/jack-hoo/">个人简介</a>
                             </li>
                         </ul>
                     </div>
@@ -317,9 +317,9 @@
             }
         });
         function changeSrc(){
-            alert("请使用推流软件(OBS等)，推送到rtmp://example.com/live/demo,即可在本直播间看到您的直播内容!")
-            chatroom.videoPlayer.src('rtmp://example.com/live/demo')
-            chatroom.videoPlayer.load('rtmp://example.com/live/demo');
+            alert("请使用推流软件(OBS等)，推送到rtmp://127.0.0.1/live/demo,即可在本直播间看到您的直播内容!")
+            chatroom.videoPlayer.src('rtmp://127.0.0.1/live/demo')
+            chatroom.videoPlayer.load('rtmp://127.0.0.1/live/demo');
             chatroom.videoPlayer.play()
         }
     </script>

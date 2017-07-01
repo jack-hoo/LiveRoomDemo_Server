@@ -33,12 +33,6 @@ public class MyChannelInterceptor extends ChannelInterceptorAdapter {
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
-    /*public MyChannelInterceptor(StatDao statDao,SimpMessagingTemplate simpMessagingTemplate) {
-        this.statDao=statDao;
-        this.simpMessagingTemplate=simpMessagingTemplate;
-    }*/
-
-    //private static final Set<UserEntity> ONLINE_USERS = new HashSet<>();
     @Override
     public boolean preReceive(MessageChannel channel) {
         System.out.println("preReceive");
@@ -49,10 +43,6 @@ public class MyChannelInterceptor extends ChannelInterceptorAdapter {
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         StompCommand command = accessor.getCommand();
-        /*Iterator iterator = message.getHeaders().entrySet().iterator();
-        while (iterator.hasNext()){
-            System.out.println(iterator.next());
-        }*/
         //检测用户订阅内容（防止用户订阅不合法频道）
         if (StompCommand.SUBSCRIBE.equals(command)) {
             //从数据库获取用户订阅频道进行对比(这里为了演示直接使用set集合代替)
@@ -70,16 +60,7 @@ public class MyChannelInterceptor extends ChannelInterceptorAdapter {
             return super.preSend(message, channel);
         }
 
-
-        //return super.preSend(message, channel);
     }
-
-    @Override
-    public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
-        // System.out.println("postSend");
-        super.postSend(message, channel, sent);
-    }
-
     @Override
     public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
         //System.out.println("afterSendCompletion");
@@ -87,7 +68,8 @@ public class MyChannelInterceptor extends ChannelInterceptorAdapter {
         //这里由于需要频繁的删除和增加集合内容，我们选择set集合来存储在线用户
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         StompCommand command = accessor.getCommand();
-        if (StompCommand.SUBSCRIBE.equals(command)){
+        System.out.println("命令="+command);
+        if (StompCommand.CONNECT.equals(command)){
             Map<String,UserEntity> map = (Map<String, UserEntity>) accessor.getHeader("simpSessionAttributes");
             //ONLINE_USERS.add(map.get("user"));
             UserEntity user = map.get("user");
@@ -116,15 +98,4 @@ public class MyChannelInterceptor extends ChannelInterceptorAdapter {
         super.afterSendCompletion(message, channel, sent, ex);
     }
 
-    @Override
-    public Message<?> postReceive(Message<?> message, MessageChannel channel) {
-        System.out.println("postReceive");
-        return super.postReceive(message, channel);
-    }
-
-    @Override
-    public void afterReceiveCompletion(Message<?> message, MessageChannel channel, Exception ex) {
-        System.out.println("afterReceiveCompletion");
-        super.afterReceiveCompletion(message, channel, ex);
-    }
 }
