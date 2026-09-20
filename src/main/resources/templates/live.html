@@ -2,14 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title></title>
-    <link href="css/videojs.css" rel="stylesheet">
+    <title>直播间 Demo</title>
+    <link href="css/videojs.css" rel="stylesheet"/>
     <script src="js/videojs.js"></script>
-    <!--<script src="http://vjs.zencdn.net/ie8/1.1.1/videojs-ie8.min.js"></script>-->
-    <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet">
+    <!--
+        原来这三个资源走的是 cdn.bootcss.com，该 CDN 已经停止服务，而且是明文 http，
+        在 https 页面里会被浏览器当作混合内容拦掉，结果就是桌面端页面直接白屏。
+        这里换成仍在维护的 jsDelivr，并统一走 https。
+    -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
     <link href="css/bootstrap.css" rel="stylesheet"/>
-    <script src="http://cdn.bootcss.com/sockjs-client/1.1.1/sockjs.min.js"></script>
-    <script src="http://cdn.bootcss.com/stomp.js/2.3.3/stomp.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.1.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     <script src="js/jquery-2.1.0.min.js"></script>
     <script src="js/bootstrap.js"></script>
     <script src="js/vue.js"></script>
@@ -26,7 +30,6 @@
         .tab-content > .active {
             border: 1px solid #ddd;
             height: 360px;
-            /*border-top: none;*/
             overflow: auto;
         }
 
@@ -50,279 +53,245 @@
             margin-left: 20px;
             color: white;
         }
+
         #danmu {
             width: 100% !important;
+        }
+
+        .room-title {
+            margin-left: 15px;
+            margin-top: 18px;
+            float: left;
         }
     </style>
 </head>
 <body>
-<!--/*@thymesVar id="online_guests" /-->
+<!--/*@thymesVar id="online_guests" */-->
 <!--/*@thymesVar id="history_guests" */-->
+<!--/*@thymesVar id="rtmp_url" */-->
+<!--/*@thymesVar id="publish_url" */-->
 <div class="container" id="chatroom">
-    <div class="row">
-
-    </div>
+    <div class="row"></div>
     <div class="row">
         <div class="col-md-12" style="margin-bottom: 10px;">
             <!--标题区域-->
             <div class="col-md-8" style="height: 80px;padding-left: 0px;background-color: #47d5af;">
                 <div>
-                    <img class="img-responsive" style="width: 80px;height:80px; float: left;"
-                         src="images/haha.gif" alt="">
-                    <button class="btn btn-default pull-right" style="background-color: #47d5af" onclick="changeSrc()">我要直播</button>
-                    <h3 style="margin-left: 15px;margin-top: 10px; float: left;">直播间demo(移动端、电脑端、安卓客户端)</h3>
+                    <button class="btn btn-default pull-right" style="background-color: #47d5af"
+                            onclick="changeSrc()">我要直播
+                    </button>
+                    <h3 class="room-title">直播间 Demo（电脑端）</h3>
                 </div>
             </div>
             <!--公告区域-->
             <div class="col-md-4" style="height: 80px; background-color: #47d5af;">
-                <h3 class="anchorNotice" style="margin-top: 0px; float: left;"><i class="fa fa-bell"
-                                                                                  aria-hidden="true"></i>主播公告</h3>
-                <div style="padding: 10px;">功能:1.直播推流(rtmp)。2:本页面拉流(电脑端拉取rtmp,手机端拉取hls)。3:聊天室。4:弹幕系统。5.数据统计。</div>
+                <h3 class="anchorNotice" style="margin-top: 0px; float: left;">
+                    <i class="fa fa-bell" aria-hidden="true"></i>主播公告
+                </h3>
+                <div style="padding: 10px;">
+                    功能：1.直播推流(rtmp)。2.本页面拉流(电脑端拉取 rtmp，手机端拉取 hls)。3.聊天室。4.弹幕系统。5.数据统计。
+                </div>
             </div>
         </div>
-        <!--
-            作者：22088468+jack-hoo@users.noreply.github.com
-            时间：2017-05-14
-            描述：左侧栏目开始
-        -->
-        <!--controls
-        preload="auto" autoplay="true" data-setup='{}' width="640px" height="439px" controls-->
+
+        <!--左侧播放器-->
         <div class="col-md-8">
-
-            <div style="position:relative; background-color: black ; height: 439px; width: 100%;">
-                <div id="danmu" style=""></div>
-                <video id="v-player"
-                        class="video-js col-center-block">
-
-                    <!--<source src="rtmp://live.hkstv.hk.lxdns.com/live/hks"  type="rtmp/flv"></source>-->
-                </video>
+            <div style="position:relative; background-color: black; height: 439px; width: 100%;">
+                <div id="danmu"></div>
+                <video id="v-player" class="video-js col-center-block"></video>
             </div>
         </div>
-        <!--
-            作者：22088468+jack-hoo@users.noreply.github.com
-            时间：2017-05-14
-            描述：左侧栏目结束
-        -->
-        <!--
-            作者：22088468+jack-hoo@users.noreply.github.com
-            时间：2017-05-14
-            描述：右侧讨论区开始
-        -->
+
+        <!--右侧讨论区-->
         <div class="col-md-4">
-            <!--tabs-->
             <ul id="menuTabs" class="nav nav-pills nav-justified">
                 <li class="active">
-                    <a href="#discussion" data-toggle="tab"><i class="fa fa-tree"></i>互动聊天</a>
+                    <a href="#discussion" data-toggle="tab"><i class="fa fa-comments"></i>互动聊天</a>
                 </li>
                 <li>
-                    <a href="#members" data-toggle="tab"><i class="fa fa-tree"></i>现场嘉宾({{number}})</a>
+                    <a href="#members" data-toggle="tab"><i class="fa fa-users"></i>现场嘉宾({{number}})</a>
                 </li>
                 <li>
-                    <a href="#guests" data-toggle="tab"><i class="fa fa-tree"></i>最近访问</a>
+                    <a href="#guests" data-toggle="tab"><i class="fa fa-clock-o"></i>最近访问</a>
                 </li>
             </ul>
-            <!--内容滚动区域开始-->
             <div id="tabContent" class="tab-content">
                 <div class="tab-pane fade active in" id="discussion" style="padding:10px;">
-                    <div v-for="message in messages">
+                    <div v-for="(message, index) in messages" :key="index">
                         <span style="color: cornflowerblue;">{{message.creator}}:</span>
                         <span>{{message.msgBody}}</span>
                     </div>
                 </div>
-                <!--内容滚动区域结束-->
-                <!--现场观众统计开始-->
-                <div class="tab-pane fade in" style="padding-top: 10px;" id="members" style="padding:10px;">
+                <div class="tab-pane fade in" id="members" style="padding:10px;">
                     <div th:each="user : ${online_guests}">
                         <span style="color: cornflowerblue;" th:text="${user.randomName}"></span>
-                        <span th:text="${user.ip}">${user.ip}</span>
+                        <span th:text="${user.ip}"></span>
                     </div>
                 </div>
-                <!--现场观众统计结束-->
-                <!--最近访问统计总数-->
-                <div class="tab-pane fade in" style="padding-top: 10px;" id="guests" style="padding:10px;">
+                <div class="tab-pane fade in" id="guests" style="padding:10px;">
                     <div th:each="guest : ${history_guests}">
                         <span style="color: cornflowerblue;" th:text="${guest.userEntity.randomName}"></span>
                         <span th:text="${guest.userEntity.ip}"></span>
-                        <span th:text="${#calendars.format(guest.accessTime,'yyyy-MM-dd mm:ss')}"></span>
+                        <span th:text="${#calendars.format(guest.accessTime,'yyyy-MM-dd HH:mm')}"></span>
                     </div>
                 </div>
             </div>
             <div id="chatinput" class="input-group" style="margin-top: 5px;">
-                <input type="text" class="form-control" v-model="messageinput" @keyup.13="sendMessage"
-                       placeholder="参与话题讨论">
+                <input type="text" class="form-control" v-model="messageinput" @keyup.enter="sendMessage"
+                       placeholder="参与话题讨论"/>
                 <span class="input-group-btn">
-				        	<button class="btn btn-success" type="button" @click="sendMessage">发送!</button>
-				      </span>
+                    <button class="btn btn-success" type="button" @click="sendMessage">发送!</button>
+                </span>
             </div>
         </div>
-        <!--
-            作者：22088468+jack-hoo@users.noreply.github.com
-            时间：2017-05-14
-            描述：右侧讨论区结束
-        -->
     </div>
 </div>
+
 <div class="footer" style="margin-top: 60px;background:rgb(71, 213, 175);">
     <div class="container">
-        <div class="row footer-top">
-            <div class="col-sm-6 col-lg-6">
-                <h4></h4>
-                <p></p>
-            </div>
-            <div class="col-sm-6  col-lg-6 ">
-                <div class="row about">
-
-                    <div class="col-xs-5 pull-right">
-                        <h4>联系方式</h4>
-                        <ul class="list-unstyled">
-                            <li>
-                                <a target="_blank" title="个人博客" href="http://github.com/jack-hoo">我的博客</a>
-                            </li>
-                            <li>
-                                <a href="">我的邮箱:22088468+jack-hoo@users.noreply.github.com</a>
-                            </li>
-                            <li>
-                                <a href="">手机号:***REMOVED***</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col-xs-3 pull-right">
-                        <h4>关于我</h4>
-                        <ul class="list-unstyled">
-                            <li>
-                                <a target="_blank" href="http://github.com/jack-hoo/">个人简介</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        <hr>
         <div class="row footer-bottom">
             <ul class="list-inline text-center">
-                <li>Copyright &copy;2017. n by***REMOVED*** Jack-hoo</li>
+                <li>LiveRoomDemo &middot; MIT License &middot;
+                    <a href="https://github.com/jack-hoo/LiveRoomDemo_Server" target="_blank"
+                       rel="noopener noreferrer">GitHub</a>
+                </li>
             </ul>
         </div>
     </div>
-    <script>
-        var chatroom = new Vue({
-            el: '#chatroom',
-            data: {
-                stompClient: null,
-                messages: [],
-                messageinput: null,
-                rtmpSource: null,
-                videoPlayer: null,
-                number: 0,
-                danmu:null,
-                danmuColor:['#666666','blue','white','red','pink']
-            },
-            methods: {
-                connecttosocket: function () {
-                    this.messages.push({
-                        creator: '系统消息',
-                        msgBody: '连接中...'
-                    })
-                    var socket = new SockJS("/LiveDemo/live")
-                    this.stompClient = Stomp.over(socket)
-                    this.stompClient.connect({}, function (frame) {
-                        chatroom.messages.push({
-                            creator: '系统消息',
-                            msgBody: '连接成功！'
-                        })
-                        //接收聊天室消息
-                        chatroom.stompClient.subscribe('/topic/online_user', function (data) {
-                            chatroom.number = JSON.parse(data.body).length
-                        });
-                        chatroom.stompClient.subscribe('/topic/group', function (data) {
-                            //console.log(JSON.parse(data.body))
-                            chatroom.messages.push(JSON.parse(data.body))
-                            let time = $('#danmu').data("nowTime")+3;
-                            let aDanmu={
-                                text:JSON.parse(data.body).msgBody,
-                                color:chatroom.danmuColor[parseInt(Math.random()*4, 10)],
-                                size:1,
-                                position:0,
-                                "time":time
-                            }
-                            $('#danmu').danmu("addDanmu",aDanmu)
-                        });
+</div>
 
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // 由服务端注入，避免把服务器地址写死在页面里。
+    // contextPath 让本页面无论部署在 / 还是 /LiveDemo 下都能连上 WebSocket。
+    var LIVE_CONFIG = {
+        contextPath: /*[[@{/}]]*/ '/',
+        rtmpUrl: /*[[${rtmp_url}]]*/ '',
+        publishUrl: /*[[${publish_url}]]*/ ''
+    };
+    /*]]>*/
+</script>
+<script>
+    // jquery.danmu 插件是把弹幕文本按 HTML 插进 DOM 的，直接塞用户输入等于开了一个 XSS 口子。
+    // Vue 的 {{ }} 会自动转义，但弹幕这条路径绕过了 Vue，所以要自己转义一次。
+    function escapeHtml(text) {
+        return $('<div>').text(text == null ? '' : text).html();
+    }
 
+    var chatroom = new Vue({
+        el: '#chatroom',
+        data: {
+            stompClient: null,
+            messages: [],
+            messageinput: '',
+            videoPlayer: null,
+            number: 0,
+            danmu: null,
+            danmuColor: ['#666666', 'blue', 'white', 'red', 'pink']
+        },
+        methods: {
+            connecttosocket: function () {
+                var vm = this;
+                vm.messages.push({creator: '系统消息', msgBody: '连接中...'});
+
+                var socket = new SockJS(LIVE_CONFIG.contextPath + 'live');
+                vm.stompClient = Stomp.over(socket);
+                vm.stompClient.connect({}, function () {
+                    vm.messages.push({creator: '系统消息', msgBody: '连接成功！'});
+
+                    vm.stompClient.subscribe('/topic/online_user', function (data) {
+                        vm.number = JSON.parse(data.body).length;
                     });
-                },
-                sendMessage: function () {
-                    if (chatroom.messageinput != null && chatroom.userid != '') {
-                        this.stompClient.send("/demo/chat", {atytopic: "topic"}, chatroom.messageinput);
-                        this.messageinput = null;
-                    } else if (chatroom.messageinput == null) {
-                        chatroom.messageinput = "请输入内容!!!";
-                    }
-
-
-                },
-                videoInit(){
-                    this.videoPlayer = videojs('v-player', {
-                            //初始化数据
-                            height: '439px',
-                            width: '640px',
-                            "techOrder": ["html5", "flash"],
-                            controls: true,
-                            "autoplay": true,
-                            sources: [{
-                                /*rtmp://live.hkstv.hk.lxdns.com/live/hks*/
-                                src: 'rtmp://live.hkstv.hk.lxdns.com/live/hks',
-                                type: 'rtmp/flv'
-                            }]
-                        },
-                        function () {
-                            this.on('loadeddata', function () {
-                                console.log(this)
-                            })
-
-                            this.on('pause', function () {
-                                //alert('pause')
-                            })
-                        }
-                    )
-                }
-
+                    vm.stompClient.subscribe('/topic/group', function (data) {
+                        var message = JSON.parse(data.body);
+                        vm.messages.push(message);
+                        vm.pushDanmu(message.msgBody);
+                    });
+                }, function (error) {
+                    // 原来没有错误回调，broker 连不上时页面停在"连接中..."，没有任何提示。
+                    vm.messages.push({creator: '系统消息', msgBody: '连接失败：' + error});
+                });
             },
-            mounted: function () {
-                //聊天室初始化
-                this.connecttosocket()
-                //视频初始化
-                this.videoInit()
-                //弹幕初始化
-                this.danmu = $("#danmu").danmu({
+            pushDanmu: function (text) {
+                var nowTime = $('#danmu').data('nowTime');
+                if (nowTime === undefined || nowTime === null) {
+                    return;
+                }
+                $('#danmu').danmu('addDanmu', {
+                    text: escapeHtml(text),
+                    color: this.danmuColor[Math.floor(Math.random() * this.danmuColor.length)],
+                    size: 1,
+                    position: 0,
+                    time: nowTime + 3
+                });
+            },
+            sendMessage: function () {
+                // 原来的判断引用了一个根本不存在的 chatroom.userid，并且会把提示语
+                // "请输入内容!!!" 直接写回输入框，用户再敲一次回车就把提示语发出去了。
+                var body = (this.messageinput || '').trim();
+                if (!body) {
+                    return;
+                }
+                if (!this.stompClient || !this.stompClient.connected) {
+                    this.messages.push({creator: '系统消息', msgBody: '尚未连接到服务器，请稍后再试'});
+                    return;
+                }
+                this.stompClient.send('/demo/chat', {}, body);
+                this.messageinput = '';
+            },
+            videoInit: function () {
+                if (!LIVE_CONFIG.rtmpUrl) {
+                    return;
+                }
+                this.videoPlayer = videojs('v-player', {
+                    height: '439px',
+                    width: '640px',
+                    techOrder: ['html5', 'flash'],
+                    controls: true,
+                    autoplay: true,
+                    sources: [{src: LIVE_CONFIG.rtmpUrl, type: 'rtmp/flv'}]
+                });
+            },
+            danmuInit: function () {
+                this.danmu = $('#danmu').danmu({
                     right: 0,
-                    top: 0 ,
-                    height: 439,  //弹幕区高度
-                    zindex :1,   //弹幕区域z-index属性
-                    speed:7000,      //滚动弹幕的默认速度，这是数值值得是弹幕滚过每672像素所需要的时间（毫秒）
-                    sumTime:65535,   //弹幕流的总时间
-                    danmuLoop:true,   //是否循环播放弹幕
-                    defaultFontColor:"#FFFFFF",   //弹幕的默认颜色
-                    fontSizeSmall:16,     //小弹幕的字号大小
-                    FontSizeBig:24,       //大弹幕的字号大小
-                    opacity:"0.9",			//默认弹幕透明度
-                    topBottonDanmuTime:6000,   // 顶部底部弹幕持续时间（毫秒）
-                    SubtitleProtection:false,     //是否字幕保护
-                    positionOptimize:false,         //是否位置优化，位置优化是指像AB站那样弹幕主要漂浮于区域上半部分
-                    maxCountInScreen: 40,   //屏幕上的最大的显示弹幕数目,弹幕数量过多时,优先加载最新的。
-                    maxCountPerSec: 10      //每分秒钟最多的弹幕数目,弹幕数量过多时,优先加载最新的。
+                    top: 0,
+                    height: 439,          //弹幕区高度
+                    zindex: 1,            //弹幕区域 z-index
+                    speed: 7000,          //滚动弹幕划过 672 像素所需的毫秒数
+                    sumTime: 65535,       //弹幕流总时长
+                    danmuLoop: true,      //是否循环播放
+                    defaultFontColor: '#FFFFFF',
+                    fontSizeSmall: 16,
+                    FontSizeBig: 24,
+                    opacity: '0.9',
+                    topBottonDanmuTime: 6000,
+                    SubtitleProtection: false,
+                    positionOptimize: false,
+                    maxCountInScreen: 40, //屏幕上同时显示的弹幕上限
+                    maxCountPerSec: 10    //每秒最多加载的弹幕条数
                 });
                 $('#danmu').danmu('danmuStart');
             }
-        });
-        function changeSrc(){
-            alert("请使用推流软件(OBS等)，推送到rtmp://127.0.0.1/live/demo,即可在本直播间看到您的直播内容!")
-            chatroom.videoPlayer.src('rtmp://127.0.0.1/live/demo')
-            chatroom.videoPlayer.load('rtmp://127.0.0.1/live/demo');
-            chatroom.videoPlayer.play()
+        },
+        mounted: function () {
+            this.connecttosocket();
+            this.videoInit();
+            this.danmuInit();
         }
-    </script>
-</div>
+    });
+
+    function changeSrc() {
+        if (!LIVE_CONFIG.publishUrl) {
+            alert('服务端未配置推流地址，请设置 liveroom.stream.publish-url');
+            return;
+        }
+        alert('请使用推流软件(OBS 等)推送到 ' + LIVE_CONFIG.publishUrl + '，即可在本直播间看到你的直播内容!');
+        if (chatroom.videoPlayer) {
+            chatroom.videoPlayer.src(LIVE_CONFIG.publishUrl);
+            chatroom.videoPlayer.play();
+        }
+    }
+</script>
 </body>
 </html>

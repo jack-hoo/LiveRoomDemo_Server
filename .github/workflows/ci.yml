@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build:
+    name: Build and test (JDK 8)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Spring Boot 1.5.x 只能用 JDK 8 编译，更高版本会直接失败
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build and test
+        # 单元测试不依赖 MySQL / Redis / RabbitMQ，CI 上无需启动任何外部服务
+        run: mvn -B --no-transfer-progress verify
+
+      - name: Upload WAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LiveDemo-war
+          path: target/LiveDemo.war
+          if-no-files-found: error
+          retention-days: 7

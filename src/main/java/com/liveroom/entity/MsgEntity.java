@@ -2,13 +2,14 @@ package com.liveroom.entity;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
- * Created by Administrator on 2017/6/12.
+ * 一条聊天消息，通过 STOMP 广播给直播间里的所有人。
  */
 public class MsgEntity implements Serializable {
-    private static final long serialVersionUID = 1l;
+
+    private static final long serialVersionUID = 1L;
+
     private String creator;
     private String msgBody;
     private Calendar sTime;
@@ -17,20 +18,20 @@ public class MsgEntity implements Serializable {
         return creator;
     }
 
-    public String getMsgBody() {
-        return msgBody;
-    }
-
-    public Calendar getsTime() {
-        return sTime;
-    }
-
     public void setCreator(String creator) {
         this.creator = creator;
     }
 
+    public String getMsgBody() {
+        return msgBody;
+    }
+
     public void setMsgBody(String msgBody) {
         this.msgBody = msgBody;
+    }
+
+    public Calendar getsTime() {
+        return sTime;
     }
 
     public void setsTime(Calendar sTime) {
@@ -39,10 +40,6 @@ public class MsgEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "MsgEntity{" +
-                "creator='" + creator + '\'' +
-                ", msgBody='" + msgBody + '\'' +
-                ", sTime=" + sTime +
-                '}';
+        return "MsgEntity{creator='" + creator + "', msgBody='" + msgBody + "', sTime=" + sTime + "}";
     }
 }

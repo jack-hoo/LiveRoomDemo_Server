@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 安全漏洞报告
+    url: https://github.com/jack-hoo/LiveRoomDemo_Server/security/advisories/new
+    about: 安全问题请不要公开提 Issue，请通过私密安全公告反馈
+  - name: 移动端相关问题
+    url: https://github.com/jack-hoo/LiveRoomDemo_Client/issues
+    about: 移动端页面的问题请到客户端仓库提交

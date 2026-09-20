@@ -1,24 +1,45 @@
+### Maven ###
 target/
-!.mvn/wrapper/maven-wrapper.jar
+pom.xml.versionsBackup
+release.properties
+dependency-reduced-pom.xml
 
-### STS ###
+### 本地配置：可能含真实数据库/Redis/MQ 密码，不要提交 ###
+application-local.properties
+application-local.yml
+*.local.properties
+.env
+.env.*
+
+### 日志 ###
+*.log
+logs/
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+### Eclipse / STS ###
 .apt_generated
 .classpath
 .factorypath
 .project
-.settings
+.settings/
 .springBeans
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
 
 ### NetBeans ###
 nbproject/private/
-build/
 nbbuild/
 dist/
 nbdist/
 .nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### 操作系统 ###
+.DS_Store
+Thumbs.db

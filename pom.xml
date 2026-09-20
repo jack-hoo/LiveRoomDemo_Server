@@ -4,12 +4,26 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.liveroom</groupId>
-	<artifactId>rtmp-demo</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>liveroom-demo-server</artifactId>
+	<version>1.0.0</version>
 	<packaging>war</packaging>
 
-	<name>rtmp-demo</name>
-	<description>Demo project for Spring Boot</description>
+	<name>LiveRoomDemo Server</name>
+	<description>基于 Spring Boot + WebSocket 的直播间 Demo 服务端：聊天室、弹幕、在线人数统计</description>
+	<url>https://github.com/jack-hoo/LiveRoomDemo_Server</url>
+
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>https://opensource.org/licenses/MIT</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<scm>
+		<url>https://github.com/jack-hoo/LiveRoomDemo_Server</url>
+		<connection>scm:git:https://github.com/jack-hoo/LiveRoomDemo_Server.git</connection>
+	</scm>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -21,117 +35,89 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<!-- Spring Boot 1.5.x 只支持到 Java 8，用更高版本的 JDK 编译会失败 -->
 		<java.version>1.8</java.version>
 	</properties>
 
 	<dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-actuator-docs</artifactId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-		<!--<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
-        <!--非严格模式解析HTML5-->
-        <dependency>
-            <groupId>net.sourceforge.nekohtml</groupId>
-            <artifactId>nekohtml</artifactId>
-            <version>1.9.22</version>
-        </dependency>
+		<!-- thymeleaf 的 LEGACYHTML5 宽松模式需要它来解析非闭合标签 -->
+		<dependency>
+			<groupId>net.sourceforge.nekohtml</groupId>
+			<artifactId>nekohtml</artifactId>
+			<version>1.9.22</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-            <!-- 移除嵌入式tomcat插件 -->
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                </exclusion>
-            </exclusions>
 		</dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
+		<!--
+			tomcat 用 provided 而不是 exclude：
+			- provided 时 mvn spring-boot:run / java -jar 依然能用内嵌 tomcat 启动；
+			- 打成 war 丢给外部 tomcat 时，这份依赖不会进 WEB-INF/lib，不会和容器自带的冲突。
+			原来直接 exclude 掉，结果是这个项目只能部署到外部容器，本地根本跑不起来。
+		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>vue</artifactId>
-            <version>2.1.3</version>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>2.9.2</version>
-        </dependency>
-        <!-- RabbitMQ相关配置-->
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-core</artifactId>
-            <version>2.0.8.RELEASE</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-net</artifactId>
-            <version>2.0.8.RELEASE</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>4.1.6.Final</version>
-        </dependency>
-
-    </dependencies>
+		<!--
+			以下依赖在代码里没有任何引用，已移除：
+			spring-boot-actuator-docs、reactor-core、reactor-net、netty-all、
+			joda-time、org.webjars:vue（前端 vue.js 是直接放在 static 目录下的）。
+			STOMP relay 走的是 spring-messaging 自带的实现，不需要 reactor/netty。
+		-->
+	</dependencies>
 
 	<build>
+		<!--
+			war 包名决定外部 tomcat 下的访问路径，前端接口前缀写死为 /LiveDemo，
+			所以这里固定成 LiveDemo，避免带上版本号变成 /liveroom-demo-server-1.0.0。
+		-->
+		<finalName>LiveDemo</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <fork>true</fork>
-                </configuration>
+				<configuration>
+					<fork>true</fork>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-
 
 </project>

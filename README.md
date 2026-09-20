@@ -1,36 +1,78 @@
+# LiveRoomDemo — Server
 
-# LiveRoomDemo(服务端)
-> 这是一个用java实现的一个直播间Demo,主要实现了以下功能
-* 拉取服务器上的直播流(移动端拉取hls流、电脑端拉取rtmp流)
-* 基于websocket的直播聊天室
-* 直播间弹幕
-* 直播间的实时数据统计    
-* [演示地址(电脑端与移动端效果不同哦)](http://127.0.0.1:8080/LiveDemo/live_room)
-* [博客地址](https://segmentfault.com/a/1190000009892006)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Java](https://img.shields.io/badge/Java-8-orange.svg)](https://adoptium.net/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-1.5.4-brightgreen.svg)](https://spring.io/projects/spring-boot)
 
-## 技术栈    
-- IDE: IntelliJ IDEA 
-- 项目架构: SpringBoot1.5.4 +Maven3.0
-- 主数据库: Mysql5.7
-- 辅数据库: redis3.2
-- 数据库访问层: spring-boot-starter-data-jpa + spring-boot-starter-data-redis
-- websocket: spring-boot-starter-websocket
-- 消息中间件: RabbitMQ/3.6.10
-- 前端(电脑端)汇总:
-    * 项目架构: Jquery + BootStrap
-    * 视频播放器: video.js
-    * websocket客户端: stomp.js + sockjs.js
-    * 弹幕插件: Jquery.danmu.js
-    * 模版引擎: thymeleaf       
-- 移动客户端项目在[这里](https://github.com/jack-hoo/LiveRoomDemo_Client)
-    
-## 运行截图   
-![户外直播](https://github.com/jack-hoo/LiveRoomDemo_Client/blob/master/static/screenshot/mzdemo.jpg)
+The server side of a live-streaming room demo: HLS/RTMP playback, a STOMP-over-WebSocket
+chat room, a bullet-screen (danmaku) overlay, and real-time viewer statistics.
 
-![全局](https://github.com/jack-hoo/LiveRoomDemo_Client/blob/master/static/screenshot/screenshot1.png)
-> 弹幕效果
-![弹幕](https://github.com/jack-hoo/LiveRoomDemo_Client/blob/master/static/screenshot/danmu.png)
+**中文文档请看 [README.zh-CN.md](README.zh-CN.md)** — it is the primary documentation and
+covers setup, configuration and deployment in detail.
 
-## 部署说明
+---
 
-详细部署说明文档在[这里](https://segmentfault.com/a/1190000009892006)
+## Features
+
+- Pulls a live stream from a media server — HLS on mobile, RTMP on desktop
+- WebSocket chat room built on STOMP + SockJS
+- Bullet-screen comments synced with the chat
+- Live online-viewer count and visitor history, backed by Redis
+- Serves both a desktop page (Thymeleaf + jQuery) and a mobile SPA
+  (the prebuilt bundle from [LiveRoomDemo_Client](https://github.com/jack-hoo/LiveRoomDemo_Client))
+
+## Tech stack
+
+| Layer | Choice |
+| --- | --- |
+| Framework | Spring Boot 1.5.4 (Java 8) |
+| Primary store | MySQL, via spring-boot-starter-data-jpa |
+| Real-time store | Redis, via spring-boot-starter-data-redis |
+| Messaging | STOMP over WebSocket; RabbitMQ relay (optional) |
+| Desktop frontend | Thymeleaf + jQuery + Bootstrap + video.js |
+| Mobile frontend | Vue 2 SPA, built separately and served as static assets |
+
+## Quick start
+
+Requires **JDK 8** (Spring Boot 1.5 does not compile on newer JDKs), Maven 3.x,
+MySQL 5.7+ and Redis 3.2+.
+
+```bash
+# 1. create the schema
+mysql -u root -p < docs/sql/schema.sql
+
+# 2. point the app at your services and start it
+export MYSQL_USERNAME=root MYSQL_PASSWORD=yourpassword
+export BROKER_RELAY_ENABLED=false          # skip RabbitMQ, use the in-memory broker
+mvn spring-boot:run
+
+# 3. open http://localhost:8085/LiveDemo/live_room
+```
+
+Full instructions — including nginx-rtmp setup, RabbitMQ STOMP, and WAR deployment
+to an external Tomcat — are in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) (Chinese).
+Every configuration key is documented in [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
+
+## Project status
+
+This is a 2017 demo project that was cleaned up and re-released as a proper open-source
+project. Bugs were fixed and personal data removed, but **the framework versions were
+deliberately left untouched**.
+
+That means Spring Boot 1.5.4, which reached end of life in August 2019 and has known
+CVEs. Do not expose this to the public internet as-is — see [SECURITY.md](SECURITY.md).
+
+Also note that **RTMP playback in the browser no longer works**: it depends on Flash,
+which every major browser removed in 2021. Use an HLS source instead.
+
+## Related repositories
+
+- [LiveRoomDemo_Client](https://github.com/jack-hoo/LiveRoomDemo_Client) — the mobile Vue SPA
+
+## Contributing
+
+Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+
+## License
+
+[MIT](LICENSE) © jack-hoo

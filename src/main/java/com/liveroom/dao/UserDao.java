@@ -4,8 +4,7 @@ import com.liveroom.entity.UserEntity;
 import org.springframework.data.repository.CrudRepository;
 
 /**
- * Created by Administrator on 2017/6/12.
+ * 访客表。主键就是访客 IP。
  */
-
-public interface UserDao extends CrudRepository<UserEntity,String>{
+public interface UserDao extends CrudRepository<UserEntity, String> {
 }
